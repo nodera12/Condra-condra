@@ -1,0 +1,338 @@
+{
+  "users": [
+    {
+      "id": "usr-admin-felix",
+      "email": "admin@mrfelix.com",
+      "username": "mrfelix_admin",
+      "passwordHash": "$2b$10$K.oiKqZx0Ec1aA/N4cLEweDChfVtG2RPEZOsP0h8kM8zFbHVYkVGy",
+      "role": "admin",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+      "bio": "Platform Creator & Lead Curator of Mr Felix Video Network 🎬⚡",
+      "followersCount": 12500,
+      "followingCount": 120,
+      "likesReceivedCount": 48900,
+      "createdAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "usr-felix-official",
+      "email": "creator@mrfelix.com",
+      "username": "felix_vibes",
+      "passwordHash": "$2b$10$K.oiKqZx0Ec1aA/N4cLEweemoyRw6E.nKQjhipSGKiB2eYYLdCEi.",
+      "role": "user",
+      "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+      "bio": "Lover of nightscapes, wildlife, and electronic beats. Sharing daily short films.",
+      "followersCount": 8420,
+      "followingCount": 340,
+      "likesReceivedCount": 24200,
+      "createdAt": "2026-02-10T12:00:00.000Z"
+    },
+    {
+      "id": "usr-amara-dance",
+      "email": "amara@mrfelix.com",
+      "username": "amara_moves",
+      "passwordHash": "$2b$10$K.oiKqZx0Ec1aA/N4cLEweemoyRw6E.nKQjhipSGKiB2eYYLdCEi.",
+      "role": "user",
+      "avatarUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80",
+      "bio": "Choreographer & Movement Director. Creating visual stories through dance.",
+      "followersCount": 15300,
+      "followingCount": 210,
+      "likesReceivedCount": 52100,
+      "createdAt": "2026-03-01T09:00:00.000Z"
+    },
+    {
+      "id": "usr-tomiwa-creatives",
+      "email": "tomiwa@mrfelix.com",
+      "username": "tomiwa_lens",
+      "passwordHash": "$2b$10$K.oiKqZx0Ec1aA/N4cLEweemoyRw6E.nKQjhipSGKiB2eYYLdCEi.",
+      "role": "user",
+      "avatarUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+      "bio": "Cinematographer & Audio Producer. Documenting coastlines and DJ sets.",
+      "followersCount": 9200,
+      "followingCount": 180,
+      "likesReceivedCount": 31400,
+      "createdAt": "2026-03-15T14:30:00.000Z"
+    },
+    {
+      "id": "usr-f7937d00-0755-4724-8953-1461c4daec51",
+      "email": "testadmin@mrfelix.tv",
+      "username": "testadmin",
+      "passwordHash": "$2b$10$TfwQnmriaoBnlb/dnMI4CuW/DuJ3HQpbTjKuzmbQs0ww2YAXLtIDq",
+      "role": "user",
+      "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=testadmin",
+      "bio": "Exploring vertical videos on Mr Felix",
+      "followersCount": 0,
+      "followingCount": 0,
+      "likesReceivedCount": 0,
+      "createdAt": "2026-09-15T16:41:04.868Z",
+      "isBanned": false
+    },
+    {
+      "id": "usr-7b38319e-9c19-4ac6-9099-d04ed7fa8d7f",
+      "email": "google_user@gmail.com",
+      "username": "google_user",
+      "role": "user",
+      "avatarUrl": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format&fit=crop&q=80",
+      "bio": "Mr Felix member via Google Sign-In",
+      "followersCount": 0,
+      "followingCount": 0,
+      "likesReceivedCount": 0,
+      "createdAt": "2026-09-15T16:58:14.514Z",
+      "googleId": "goog_1789491494478",
+      "isBanned": false
+    },
+    {
+      "id": "usr-4870297c-ef46-4f27-850c-27a10b73b371",
+      "email": "nworkaebube@gmail.com",
+      "username": "nwo",
+      "passwordHash": "$2b$10$4lcTVAFcnsRuGfGkl7HjoerySLh3HDoeZhBu25si11Bbw1zxFR4Ja",
+      "role": "admin",
+      "avatarUrl": "https://api.dicebear.com/7.x/bottts/svg?seed=nwo",
+      "bio": "Exploring vertical videos on Mr Felix",
+      "followersCount": 0,
+      "followingCount": 0,
+      "likesReceivedCount": 0,
+      "createdAt": "2026-09-15T16:58:44.747Z",
+      "isBanned": false
+    }
+  ],
+  "videos": [],
+  "comments": [],
+  "likes": [],
+  "follows": [
+    {
+      "id": "flw-1",
+      "followerId": "usr-admin-felix",
+      "followingId": "usr-felix-official",
+      "createdAt": "2026-02-15T00:00:00.000Z"
+    },
+    {
+      "id": "flw-2",
+      "followerId": "usr-felix-official",
+      "followingId": "usr-amara-dance",
+      "createdAt": "2026-03-05T00:00:00.000Z"
+    }
+  ],
+  "dataPurchases": [
+    {
+      "id": "dp-sample-1",
+      "userId": "usr-felix-official",
+      "username": "felix_vibes",
+      "userEmail": "creator@mrfelix.com",
+      "phoneNumber": "+2348012345678",
+      "packageId": "daily-1gb-250",
+      "packageName": "DAILY DATA (1 GB)",
+      "price": "₦250",
+      "status": "APPROVED",
+      "createdAt": "2026-09-15T14:35:21.289Z",
+      "approvedAt": "2026-09-21T14:44:25.729Z"
+    },
+    {
+      "id": "dp-sample-2",
+      "userId": "usr-amara-dance",
+      "username": "amara_moves",
+      "userEmail": "amara@mrfelix.com",
+      "phoneNumber": "+2348098765432",
+      "packageId": "daily-1gb-250",
+      "packageName": "DAILY DATA (1 GB)",
+      "price": "₦250",
+      "status": "APPROVED",
+      "createdAt": "2026-09-14T16:35:21.289Z",
+      "approvedAt": "2026-09-14T18:35:21.290Z",
+      "adminNotes": "Verified and approved by admin queue"
+    }
+  ],
+  "liveStreams": [
+    {
+      "id": "live-1",
+      "creatorId": "usr-amara-dance",
+      "creatorUsername": "amara_moves",
+      "creatorAvatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format&fit=crop&q=80",
+      "title": "🔴 Live Choreography Workshop & Q&A",
+      "category": "Dance & Arts",
+      "viewerCount": 1428,
+      "isLive": true,
+      "startedAt": "2026-09-15T16:11:21.289Z",
+      "streamKey": "live_stream_amara_secure_key_99",
+      "endpointUrl": "webrtc://stream.mrfelix.live/live/amara_moves",
+      "previewImage": "https://images.unsplash.com/photo-1518611012118-696072aa579a?w=600&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "live-2",
+      "creatorId": "usr-tomiwa-creatives",
+      "creatorUsername": "tomiwa_lens",
+      "creatorAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+      "title": "Sunset DJ Vinyl Set & Synth Experiment 🎧",
+      "category": "Music & Audio",
+      "viewerCount": 842,
+      "isLive": true,
+      "startedAt": "2026-09-15T15:50:21.289Z",
+      "streamKey": "live_stream_tomiwa_synth_key_88",
+      "endpointUrl": "webrtc://stream.mrfelix.live/live/tomiwa_lens",
+      "previewImage": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=600&auto=format&fit=crop&q=80"
+    },
+    {
+      "id": "live-3",
+      "creatorId": "usr-chef-kofi",
+      "creatorUsername": "kofi_eats",
+      "creatorAvatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80",
+      "title": "Late Night Gourmet Street Kitchen Cooking 🥘",
+      "category": "Food & Cooking",
+      "viewerCount": 620,
+      "isLive": true,
+      "startedAt": "2026-09-15T16:20:21.289Z",
+      "streamKey": "live_stream_kofi_chef_key_77",
+      "endpointUrl": "webrtc://stream.mrfelix.live/live/kofi_eats",
+      "previewImage": "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&auto=format&fit=crop&q=80"
+    }
+  ],
+  "liveChatMessages": [
+    {
+      "id": "lcm-1",
+      "streamId": "live-1",
+      "userId": "usr-tomiwa-creatives",
+      "username": "tomiwa_lens",
+      "userAvatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80",
+      "message": "Great footwork on that pivot! 🔥",
+      "timestamp": "2026-09-15T16:25:21.290Z"
+    },
+    {
+      "id": "lcm-2",
+      "streamId": "live-1",
+      "userId": "usr-felix-official",
+      "username": "felix_vibes",
+      "userAvatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80",
+      "message": "Hello from Lagos! Loving the stream 🌟",
+      "timestamp": "2026-09-15T16:31:21.290Z"
+    }
+  ],
+  "requiredLink": {
+    "id": "req-link-1",
+    "url": "https://example.com/partner-verification",
+    "isEnabled": false,
+    "title": "Important Partner Action",
+    "description": "You have an action to complete before continuing on Mr Felix.",
+    "updatedAt": "2026-09-14T00:00:00.000Z"
+  },
+  "settings": {
+    "siteTitle": "Mr Felix",
+    "adminHeartbeatLastSeen": 1790002090069,
+    "maintenanceMode": false,
+    "dailyDataPrice": "₦250",
+    "announcementText": "Welcome to Mr Felix! Browse video feeds, claim high-speed data, tune into live streams, or test your typing speed."
+  },
+  "typingScores": [
+    {
+      "id": "ts-f6dabc11-a17c-40de-9935-13f9b08f5846",
+      "userId": "usr-4870297c-ef46-4f27-850c-27a10b73b371",
+      "username": "nwo",
+      "durationSeconds": 15,
+      "wordsTyped": 0,
+      "correctWords": 0,
+      "incorrectWords": 0,
+      "accuracy": 0,
+      "wpm": 0,
+      "timeUsed": 15,
+      "completedAt": "2026-09-21T14:39:54.297Z"
+    },
+    {
+      "id": "ts-79e8d569-4d56-405a-886f-fd8fa1f0703e",
+      "userId": "usr-4870297c-ef46-4f27-850c-27a10b73b371",
+      "username": "nwo",
+      "durationSeconds": 15,
+      "wordsTyped": 0,
+      "correctWords": 0,
+      "incorrectWords": 0,
+      "accuracy": 0,
+      "wpm": 0,
+      "timeUsed": 15,
+      "completedAt": "2026-09-21T14:39:54.295Z"
+    },
+    {
+      "id": "ts-1",
+      "userId": "usr-admin-felix",
+      "username": "mrfelix_admin",
+      "durationSeconds": 60,
+      "wordsTyped": 68,
+      "correctWords": 64,
+      "incorrectWords": 4,
+      "accuracy": 94.1,
+      "wpm": 64,
+      "timeUsed": 60,
+      "completedAt": "2026-09-13T15:00:00.000Z"
+    },
+    {
+      "id": "ts-2",
+      "userId": "usr-felix-official",
+      "username": "felix_vibes",
+      "durationSeconds": 30,
+      "wordsTyped": 36,
+      "correctWords": 34,
+      "incorrectWords": 2,
+      "accuracy": 94.4,
+      "wpm": 68,
+      "timeUsed": 30,
+      "completedAt": "2026-09-14T11:00:00.000Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-42363608-47c9-4d59-9903-aecd631f0671",
+      "userId": "usr-felix-official",
+      "type": "data_status",
+      "title": "Data Purchase Approved! 🎉",
+      "message": "Your request for DAILY DATA (1 GB) for +2348012345678 has been APPROVED by the administrator.",
+      "link": "/buy-data",
+      "read": false,
+      "createdAt": "2026-09-21T14:44:25.730Z"
+    },
+    {
+      "id": "notif-1562d939-950b-4cca-8182-39bd1d0c453b",
+      "userId": "usr-4870297c-ef46-4f27-850c-27a10b73b371",
+      "type": "system",
+      "title": "Welcome to Mr Felix!",
+      "message": "Welcome to Mr Felix! Enjoy curated short-form videos, purchase data packages, and test your typing speed.",
+      "read": false,
+      "createdAt": "2026-09-15T16:58:44.748Z"
+    },
+    {
+      "id": "notif-0a6c2aed-655c-48c2-9e70-58b95c6f8d71",
+      "userId": "usr-amara-dance",
+      "type": "system",
+      "title": "New Like on your video",
+      "message": "@google_user liked your video \"Warm Sunset Glow on the Roofto\"",
+      "link": "/video/vid-8",
+      "read": false,
+      "createdAt": "2026-09-15T16:58:14.683Z"
+    },
+    {
+      "id": "notif-1ee8e9c4-154d-4a7b-b099-4ab27127e69d",
+      "userId": "usr-f7937d00-0755-4724-8953-1461c4daec51",
+      "type": "system",
+      "title": "Welcome to Mr Felix!",
+      "message": "Welcome to Mr Felix! Enjoy curated short-form videos, purchase data packages, and test your typing speed.",
+      "read": false,
+      "createdAt": "2026-09-15T16:41:04.869Z"
+    },
+    {
+      "id": "notif-1",
+      "userId": "usr-felix-official",
+      "type": "data_status",
+      "title": "Data Purchase Received",
+      "message": "Your request for DAILY DATA 1 GB (₦250) has been submitted and is pending admin approval.",
+      "link": "/buy-data",
+      "read": false,
+      "createdAt": "2026-09-15T14:35:21.290Z"
+    },
+    {
+      "id": "notif-2",
+      "userId": "usr-amara-dance",
+      "type": "data_status",
+      "title": "Data Request Approved!",
+      "message": "Your DAILY DATA request has been approved by the platform administrator.",
+      "link": "/buy-data",
+      "read": true,
+      "createdAt": "2026-09-14T18:35:21.290Z"
+    }
+  ],
+  "passwordResetTokens": []
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Mr Felix",
+  "description": "Mobile-first social vertical video platform featuring video feeds, wallet with PalmPay deposits and withdrawals, data bundle purchases, live streams, and admin controls.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
