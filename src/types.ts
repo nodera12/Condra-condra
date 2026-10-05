@@ -163,10 +163,14 @@ export interface SeasonalFilm {
   id: string;
   title: string;
   category: string;
+  season?: string;
+  year?: string;
   duration: string;
   director: string;
   synopsis: string;
   poster: string;
+  thumbnailUrl?: string;
+  posterUrl?: string;
   trailerUrl: string;
   badge: string;
 }

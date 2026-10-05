@@ -17,6 +17,7 @@ import {
   Wallet,
   Trash2,
   HardDrive,
+  Lock,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.tsx';
 import { api } from '../lib/api.ts';
@@ -370,6 +371,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       alt={video.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     />
+                    {video.visibility === 'private' && (
+                      <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-black/75 backdrop-blur-sm border border-amber-400/40 text-[9px] font-bold text-amber-300 flex items-center gap-1 shadow z-10">
+                        <Lock className="w-2.5 h-2.5" />
+                        <span>₦{(video.viewingPrice || 100).toLocaleString()}</span>
+                      </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-2">
                       {(isOwnProfile || isAdmin) && (
                         <button

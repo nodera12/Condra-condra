@@ -33,12 +33,32 @@ export const ExploreView: React.FC = () => {
 
   const seasons = ['All', 'Autumn', 'Winter', 'Spring', 'Summer'];
 
+  const getFilmSeason = (film: SeasonalFilm): string => {
+    if (film?.season) return film.season;
+    const cat = (film?.category || '').toUpperCase();
+    if (cat.includes('AUTUMN')) return 'Autumn';
+    if (cat.includes('WINTER')) return 'Winter';
+    if (cat.includes('SPRING')) return 'Spring';
+    if (cat.includes('SUMMER')) return 'Summer';
+    return 'All';
+  };
+
   const filteredFilms = films.filter((film) => {
-    const matchesSeason = selectedSeason === 'All' || film.season.toLowerCase() === selectedSeason.toLowerCase();
+    if (!film) return false;
+    const filmSeason = getFilmSeason(film);
+    const matchesSeason =
+      selectedSeason === 'All' ||
+      filmSeason.toLowerCase() === (selectedSeason || '').toLowerCase();
+
+    const query = searchQuery?.toLowerCase().trim() || '';
+    if (!query) return matchesSeason;
+
     const matchesSearch =
-      film.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      film.synopsis.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      film.director.toLowerCase().includes(searchQuery.toLowerCase());
+      (film.title || '').toLowerCase().includes(query) ||
+      (film.synopsis || '').toLowerCase().includes(query) ||
+      (film.director || '').toLowerCase().includes(query) ||
+      (film.category || '').toLowerCase().includes(query);
+
     return matchesSeason && matchesSearch;
   });
 
@@ -247,8 +267,8 @@ export const ExploreView: React.FC = () => {
               {/* Poster & Play Trailer trigger */}
               <div className="relative aspect-video bg-neutral-950 overflow-hidden">
                 <img
-                  src={film.thumbnailUrl}
-                  alt={film.title}
+                  src={film.thumbnailUrl || film.posterUrl || film.poster}
+                  alt={film.title || 'Film'}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
@@ -256,14 +276,16 @@ export const ExploreView: React.FC = () => {
 
                 {/* Season Tag */}
                 <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider bg-neutral-900/80 backdrop-blur-sm border border-white/10 text-amber-300">
-                  {film.season} Cinema
+                  {getFilmSeason(film)} Cinema
                 </span>
 
                 {/* Duration */}
-                <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded text-[10px] font-semibold bg-black/70 text-white flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-amber-400" />
-                  {film.duration}
-                </span>
+                {film.duration && (
+                  <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded text-[10px] font-semibold bg-black/70 text-white flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-amber-400" />
+                    {film.duration}
+                  </span>
+                )}
 
                 {/* Trailer button */}
                 <button
@@ -278,8 +300,8 @@ export const ExploreView: React.FC = () => {
               <div className="p-4 flex-1 flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between text-[11px] text-neutral-400 mb-1">
-                    <span>Directed by {film.director}</span>
-                    <span>{film.year}</span>
+                    <span>Directed by {film.director || 'Independent Filmmaker'}</span>
+                    <span>{film.year || '2025'}</span>
                   </div>
                   <h3 className="text-sm font-bold text-white mb-1.5 leading-snug">{film.title}</h3>
                   <p className="text-xs text-neutral-300 line-clamp-2 leading-relaxed mb-3">
@@ -317,7 +339,7 @@ export const ExploreView: React.FC = () => {
             <div className="relative aspect-video bg-black">
               <video
                 src={activeFilmTrailer.trailerUrl}
-                poster={activeFilmTrailer.thumbnailUrl}
+                poster={activeFilmTrailer.thumbnailUrl || activeFilmTrailer.posterUrl || activeFilmTrailer.poster}
                 controls
                 autoPlay
                 className="w-full h-full object-cover"

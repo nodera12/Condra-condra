@@ -161,7 +161,9 @@ export const gmailApi = {
     const headersList: GmailMessageHeader[] = data.payload?.headers || [];
     const headersMap: Record<string, string> = {};
     headersList.forEach((h) => {
-      headersMap[h.name.toLowerCase()] = h.value;
+      if (h?.name) {
+        headersMap[h.name.toLowerCase()] = h.value || '';
+      }
     });
 
     const { text, html } = extractBodyParts(data.payload);

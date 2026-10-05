@@ -19,19 +19,31 @@ import {
   Check,
   Upload,
   Trash2,
+  Gift,
+  Lock,
+  Unlock,
+  Coins,
+  AlertCircle,
 } from 'lucide-react';
-import { Video, Comment } from '../types.ts';
+import { Video, Comment, VideoGift } from '../types.ts';
 import { api } from '../lib/api.ts';
 import { useAuth } from '../context/AuthContext.tsx';
 
 interface HomeFeedProps {
+  initialVideoId?: string | null;
   onOpenProfile: (username: string) => void;
   onRefreshFeed: () => void;
   onOpenUpload?: () => void;
+  onOpenWallet?: () => void;
 }
 
-export const HomeFeed: React.FC<HomeFeedProps> = ({ onOpenProfile, onOpenUpload }) => {
-  const { user, isAuthenticated, requireAuthAction } = useAuth();
+export const HomeFeed: React.FC<HomeFeedProps> = ({
+  initialVideoId,
+  onOpenProfile,
+  onOpenUpload,
+  onOpenWallet,
+}) => {
+  const { user, isAuthenticated, requireAuthAction, openAuthModal, refreshUser } = useAuth();
 
   const [videos, setVideos] = useState<Video[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
@@ -44,6 +56,17 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ onOpenProfile, onOpenUpload 
   const [isSubmittingComment, setIsSubmittingComment] = useState<boolean>(false);
   const [shareToast, setShareToast] = useState<string | null>(null);
 
+  // Pay-to-watch / unlock state
+  const [isUnlocking, setIsUnlocking] = useState<boolean>(false);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
+
+  // Video gift state
+  const [giftModalOpen, setGiftModalOpen] = useState<boolean>(false);
+  const [selectedGiftAmount, setSelectedGiftAmount] = useState<number>(100);
+  const [isSendingGift, setIsSendingGift] = useState<boolean>(false);
+  const [giftError, setGiftError] = useState<string | null>(null);
+  const [giftSuccessToast, setGiftSuccessToast] = useState<string | null>(null);
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -53,6 +76,13 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ onOpenProfile, onOpenUpload 
     try {
       const data = await api.getVideos(shuffle);
       setVideos(data.videos);
+      if (initialVideoId) {
+        const targetIdx = data.videos.findIndex((v) => v.id === initialVideoId);
+        if (targetIdx !== -1) {
+          setCurrentIndex(targetIdx);
+          return;
+        }
+      }
       setCurrentIndex(0);
     } catch (err) {
       console.error('Failed to load videos:', err);
@@ -263,6 +293,79 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ onOpenProfile, onOpenUpload 
     }
   };
 
+  // Pay to Watch / Unlock Video
+  const handleUnlockVideo = async () => {
+    if (!currentVideo) return;
+    if (!isAuthenticated) {
+      openAuthModal('login', 'Please log in or create an account to unlock this video.');
+      return;
+    }
+
+    const price = currentVideo.viewingPrice || 100;
+    if ((user?.walletBalance || 0) < price) {
+      setUnlockError(`Insufficient balance (₦${(user?.walletBalance || 0).toLocaleString()}). Please deposit to watch.`);
+      return;
+    }
+
+    setIsUnlocking(true);
+    setUnlockError(null);
+    try {
+      const res = await api.payToWatchVideo(currentVideo.id);
+      setVideos((prev) =>
+        prev.map((v) =>
+          v.id === currentVideo.id
+            ? { ...v, isLocked: false, hasPaid: true, videoUrl: res.videoUrl }
+            : v
+        )
+      );
+      await refreshUser();
+      setIsPlaying(true);
+      setShareToast(`🎉 Unlocked "${currentVideo.title}"! Enjoy watching.`);
+      setTimeout(() => setShareToast(null), 3500);
+    } catch (err: any) {
+      console.error('Unlock error:', err);
+      setUnlockError(err.message || 'Failed to unlock video.');
+    } finally {
+      setIsUnlocking(false);
+    }
+  };
+
+  // Send Gift to Creator
+  const handleSendGift = async () => {
+    if (!currentVideo) return;
+    if (!isAuthenticated) {
+      openAuthModal('login', 'Please log in to send gifts to creators.');
+      return;
+    }
+
+    if (user?.id === currentVideo.creatorId || user?.id === currentVideo.userId) {
+      setGiftError('You cannot send a gift to your own video.');
+      return;
+    }
+
+    if ((user?.walletBalance || 0) < selectedGiftAmount) {
+      setGiftError(
+        `Insufficient balance (₦${(user?.walletBalance || 0).toLocaleString()}). Please deposit at least ₦${selectedGiftAmount} to send this gift.`
+      );
+      return;
+    }
+
+    setIsSendingGift(true);
+    setGiftError(null);
+    try {
+      const res = await api.sendVideoGift(currentVideo.id, selectedGiftAmount);
+      await refreshUser();
+      setGiftModalOpen(false);
+      setGiftSuccessToast(res.message || `🎁 Gift of ₦${selectedGiftAmount.toLocaleString()} sent to @${currentVideo.creatorUsername}!`);
+      setTimeout(() => setGiftSuccessToast(null), 4000);
+    } catch (err: any) {
+      console.error('Gift error:', err);
+      setGiftError(err.message || 'Failed to send gift.');
+    } finally {
+      setIsSendingGift(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="w-full h-[calc(100vh-3.5rem)] pb-16 flex items-center justify-center bg-neutral-950">
@@ -323,20 +426,117 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ onOpenProfile, onOpenUpload 
         className="relative w-full h-full max-w-md bg-black md:rounded-2xl md:my-2 md:h-[calc(100%-1rem)] overflow-hidden shadow-2xl border border-neutral-900 flex items-center justify-center"
       >
         {/* Actual Video Player */}
-        <video
-          ref={videoRef}
-          id="active-video-element"
-          src={currentVideo.videoUrl}
-          poster={currentVideo.posterUrl}
-          playsInline
-          loop
-          muted={isMuted}
-          onClick={() => setIsPlaying((prev) => !prev)}
-          className="w-full h-full object-cover cursor-pointer"
-        />
+        {!currentVideo.isLocked ? (
+          <video
+            ref={videoRef}
+            id="active-video-element"
+            src={currentVideo.videoUrl}
+            poster={currentVideo.posterUrl}
+            playsInline
+            loop
+            muted={isMuted}
+            onClick={() => setIsPlaying((prev) => !prev)}
+            className="w-full h-full object-cover cursor-pointer"
+          />
+        ) : (
+          <div className="relative w-full h-full bg-neutral-950 flex items-center justify-center overflow-hidden">
+            {currentVideo.posterUrl && (
+              <img
+                src={currentVideo.posterUrl}
+                alt={currentVideo.title}
+                className="w-full h-full object-cover blur-md brightness-50"
+              />
+            )}
+            {/* Paywall Overlay */}
+            <div
+              id="paywall-overlay"
+              className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/85 backdrop-blur-sm p-6 text-center select-text"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border-2 border-amber-500/40 flex items-center justify-center text-amber-400 mb-3 shadow-xl shadow-amber-500/10">
+                <Lock className="w-8 h-8" />
+              </div>
+
+              <div className="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-[10px] font-black uppercase tracking-wider mb-2">
+                Private Creator Content
+              </div>
+
+              <h3 className="text-base font-bold text-white mb-1 line-clamp-2 px-2">
+                {currentVideo.title}
+              </h3>
+
+              <p className="text-xs text-neutral-400 max-w-xs mb-4 leading-relaxed">
+                Exclusive video by <span className="text-amber-400 font-semibold">@{currentVideo.creatorUsername}</span>. Pay to unlock full streaming access.
+              </p>
+
+              <div className="p-3.5 rounded-xl bg-neutral-900 border border-neutral-800 w-full max-w-xs mb-4">
+                <div className="flex items-center justify-between text-xs mb-2">
+                  <span className="text-neutral-400">Unlock Fee:</span>
+                  <span className="text-amber-400 font-black text-sm">₦{(currentVideo.viewingPrice || 100).toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-neutral-800">
+                  <span className="text-neutral-400">Your Wallet:</span>
+                  <span className="text-white font-mono font-bold">₦{(user?.walletBalance || 0).toLocaleString()}</span>
+                </div>
+              </div>
+
+              {unlockError && (
+                <div className="mb-3 p-2 rounded-lg bg-red-950/60 border border-red-500/30 text-red-300 text-[11px] max-w-xs flex items-center gap-1.5 text-left">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{unlockError}</span>
+                </div>
+              )}
+
+              {user ? (
+                (user.walletBalance || 0) >= (currentVideo.viewingPrice || 100) ? (
+                  <button
+                    id="btn-unlock-video"
+                    onClick={handleUnlockVideo}
+                    disabled={isUnlocking}
+                    className="w-full max-w-xs py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-95 transition-all"
+                  >
+                    {isUnlocking ? (
+                      <>
+                        <div className="w-4 h-4 rounded-full border-2 border-neutral-950 border-t-transparent animate-spin" />
+                        <span>Unlocking Video...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Unlock className="w-4 h-4" />
+                        <span>Unlock & Watch (₦{(currentVideo.viewingPrice || 100).toLocaleString()})</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <div className="w-full max-w-xs space-y-2">
+                    <p className="text-[11px] text-amber-400 font-medium">
+                      Insufficient wallet balance to unlock this video.
+                    </p>
+                    {onOpenWallet && (
+                      <button
+                        id="btn-deposit-for-unlock"
+                        onClick={onOpenWallet}
+                        className="w-full py-2.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-xs hover:bg-amber-500/30 transition-colors"
+                      >
+                        Go to Wallet & Deposit
+                      </button>
+                    )}
+                  </div>
+                )
+              ) : (
+                <button
+                  id="btn-login-to-unlock"
+                  onClick={() => openAuthModal('login', 'Please log in to unlock and watch private videos.')}
+                  className="w-full max-w-xs py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-bold text-xs uppercase tracking-wider shadow-lg active:scale-95 transition-all"
+                >
+                  Log In to Unlock
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Play/Pause Center Indicator */}
-        {!isPlaying && (
+        {!currentVideo.isLocked && !isPlaying && (
           <div
             onClick={() => setIsPlaying(true)}
             className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[1px] cursor-pointer"
@@ -475,6 +675,26 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ onOpenProfile, onOpenUpload 
             </button>
             <span className="text-[11px] font-bold text-white drop-shadow mt-1">
               {currentVideo.sharesCount}
+            </span>
+          </div>
+
+          {/* Gift Creator Button */}
+          <div className="flex flex-col items-center">
+            <button
+              id="btn-gift-video"
+              onClick={() => {
+                requireAuthAction(() => {
+                  setGiftError(null);
+                  setGiftModalOpen(true);
+                }, 'Please log in to send gifts to creators.');
+              }}
+              className="p-3 rounded-full bg-gradient-to-tr from-amber-500/25 via-amber-400/20 to-yellow-500/25 hover:from-amber-500/40 hover:to-yellow-500/40 backdrop-blur-md border border-amber-400/50 text-amber-300 shadow-lg shadow-amber-500/10 transition-transform active:scale-125"
+              title="Send Gift to Creator"
+            >
+              <Gift className="w-6 h-6 animate-pulse" />
+            </button>
+            <span className="text-[11px] font-bold text-amber-300 drop-shadow mt-1">
+              Gift
             </span>
           </div>
 
@@ -636,6 +856,161 @@ export const HomeFeed: React.FC<HomeFeedProps> = ({ onOpenProfile, onOpenUpload 
                 <Send className="w-4 h-4" />
               </button>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Gift Success Toast */}
+      {giftSuccessToast && (
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-neutral-950 text-xs font-black shadow-2xl flex items-center gap-2 animate-in zoom-in-95">
+          <Gift className="w-4 h-4 fill-neutral-950" />
+          <span>{giftSuccessToast}</span>
+        </div>
+      )}
+
+      {/* Gift Creator Modal */}
+      {giftModalOpen && currentVideo && (
+        <div
+          id="gift-modal-backdrop"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in"
+          onClick={() => setGiftModalOpen(false)}
+        >
+          <div
+            id="gift-modal-content"
+            className="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-3xl p-5 shadow-2xl text-left relative overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-neutral-800">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                  <Gift className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white font-['Outfit',sans-serif]">Send Creator Gift</h3>
+                  <p className="text-[10px] text-neutral-400">Support @{currentVideo.creatorUsername}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setGiftModalOpen(false)}
+                className="p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Recipient Details */}
+            <div className="my-4 p-3 rounded-2xl bg-neutral-950/70 border border-neutral-800/80 flex items-center gap-3">
+              <img
+                src={currentVideo.creatorAvatar}
+                alt={currentVideo.creatorUsername}
+                className="w-10 h-10 rounded-full object-cover border border-amber-400/50"
+              />
+              <div className="min-w-0 flex-1">
+                <span className="text-xs font-bold text-white block truncate">
+                  @{currentVideo.creatorUsername}
+                </span>
+                <span className="text-[10px] text-neutral-400 truncate block">
+                  "{currentVideo.title}"
+                </span>
+              </div>
+            </div>
+
+            {/* If user is the creator */}
+            {user && (user.id === currentVideo.creatorId || user.id === currentVideo.userId) ? (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs text-center my-3">
+                <p className="font-semibold mb-1">This is your video!</p>
+                <p className="text-[11px] text-amber-400/80">
+                  Share this video with fans so they can send gifts directly to your Nigerian bank/wallet.
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Gift Presets */}
+                <div className="mb-4">
+                  <label className="text-[10px] uppercase font-bold text-neutral-400 tracking-wider block mb-2">
+                    Select Gift Amount
+                  </label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { amount: 50, label: '☕ Coffee', desc: 'Warm cheer' },
+                      { amount: 100, label: '⭐ Super Star', desc: 'Popular' },
+                      { amount: 150, label: '🔥 Fire Boost', desc: 'Huge fan' },
+                      { amount: 200, label: '👑 Crown VIP', desc: 'Top supporter' },
+                    ].map((item) => (
+                      <button
+                        key={item.amount}
+                        type="button"
+                        onClick={() => {
+                          setSelectedGiftAmount(item.amount);
+                          setGiftError(null);
+                        }}
+                        className={`p-2.5 rounded-xl border text-left transition-all ${
+                          selectedGiftAmount === item.amount
+                            ? 'bg-amber-500/20 border-amber-400 text-white shadow-md shadow-amber-500/10 ring-1 ring-amber-400'
+                            : 'bg-neutral-950/60 border-neutral-800 text-neutral-300 hover:border-neutral-700'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-0.5">
+                          <span className="text-xs font-bold">{item.label}</span>
+                          <span className="text-xs font-black text-amber-400">₦{item.amount}</span>
+                        </div>
+                        <span className="text-[9px] text-neutral-500 block">{item.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Balance & Fee Summary */}
+                <div className="p-3 rounded-xl bg-neutral-950 border border-neutral-800/80 mb-4 flex items-center justify-between text-xs">
+                  <span className="text-neutral-400">Your Wallet:</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-mono font-bold text-white">
+                      ₦{(user?.walletBalance || 0).toLocaleString()}
+                    </span>
+                    {(user?.walletBalance || 0) < selectedGiftAmount && onOpenWallet && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setGiftModalOpen(false);
+                          onOpenWallet();
+                        }}
+                        className="text-[10px] text-amber-400 underline font-semibold ml-1"
+                      >
+                        Deposit
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Error message */}
+                {giftError && (
+                  <div className="mb-3 p-2.5 rounded-xl bg-red-950/70 border border-red-500/40 text-red-300 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
+                    <span className="leading-tight">{giftError}</span>
+                  </div>
+                )}
+
+                {/* Action button */}
+                <button
+                  id="btn-confirm-send-gift"
+                  onClick={handleSendGift}
+                  disabled={isSendingGift}
+                  className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-neutral-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {isSendingGift ? (
+                    <>
+                      <div className="w-4 h-4 rounded-full border-2 border-neutral-950 border-t-transparent animate-spin" />
+                      <span>Sending Gift...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Gift className="w-4 h-4" />
+                      <span>Send ₦{selectedGiftAmount.toLocaleString()} Gift</span>
+                    </>
+                  )}
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -22,6 +22,7 @@ function MainAppContent() {
   // Tab State
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [viewedProfileUsername, setViewedProfileUsername] = useState<string | null>(null);
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
 
   // Modals & Drawers
   const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
@@ -109,10 +110,12 @@ function MainAppContent() {
       <main className="flex-1 pt-14">
         {activeTab === 'home' && (
           <HomeFeed
-            key={feedRefreshKey}
+            key={`${feedRefreshKey}-${selectedVideoId || 'default'}`}
+            initialVideoId={selectedVideoId}
             onOpenProfile={handleOpenCreatorProfile}
             onRefreshFeed={pollStatus}
             onOpenUpload={handleOpenUpload}
+            onOpenWallet={() => handleTabChange('wallet')}
           />
         )}
 
@@ -146,7 +149,10 @@ function MainAppContent() {
           <ProfileView
             targetUsername={viewedProfileUsername}
             onBackToFeed={() => handleTabChange('home')}
-            onSelectVideo={() => handleTabChange('home')}
+            onSelectVideo={(videoId) => {
+              setSelectedVideoId(videoId);
+              handleTabChange('home');
+            }}
             onOpenAdmin={() => handleTabChange('admin')}
             onOpenWallet={() => handleTabChange('wallet')}
           />
